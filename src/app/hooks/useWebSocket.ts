@@ -1,42 +1,59 @@
 "use client";
-import { useEffect, useRef } from "react";
 
-export default function useWebSocket(onMessage: (msg: string | object) => void, p0: boolean) {
+import { useEffect, useRef, useState } from "react";
+import { createWebSocket } from "../config";
+
+export function useWebSocket() {
+	const [isConnected, setIsConnected] = useState(false);
+	const [lastMessage, setLastMessage] = useState<unknown>(null);
 	const wsRef = useRef<WebSocket | null>(null);
+	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-	useEffect(() => {
-		let ping: unknown; 
-		function connect() {
-			const ws = new WebSocket("ws://127.0.0.1:8000/ws/updates");
-			wsRef.current = ws;
+	const connect = () => {
+		try {
+			const ws = createWebSocket((data) => {
+				setLastMessage(data);
+			});
 
 			ws.onopen = () => {
-				console.log("✅ WebSocket connected");
-				ping = setInterval(() => {
-					if (ws.readyState === 1) ws.send("ping");
-				}, 15000);
-			};
-
-			ws.onmessage = (ev) => {
-				try {
-					const data = JSON.parse(ev.data);
-					onMessage(data);
-				} catch {
-					console.warn("Invalid WS message:", ev.data);
-				}
+				setIsConnected(true);
+				console.log("[v0] WebSocket connected successfully");
 			};
 
 			ws.onclose = () => {
-				console.warn("⚠️ WebSocket closed. Reconnecting...");
-				clearInterval(ping);
-				setTimeout(connect, 3000);
-			};
-		}
+				setIsConnected(false);
+				console.log("[v0] WebSocket disconnected, attempting to reconnect...");
 
+				// Attempt to reconnect after 5 seconds
+				reconnectTimeoutRef.current = setTimeout(() => {
+					connect();
+				}, 5000);
+			};
+
+			ws.onerror = (error) => {
+				console.error("[v0] WebSocket error:", error);
+				setIsConnected(false);
+			};
+
+			wsRef.current = ws;
+		} catch (error) {
+			console.error("[v0] Failed to create WebSocket:", error);
+			setIsConnected(false);
+		}
+	};
+
+	useEffect(() => {
 		connect();
+
 		return () => {
-			clearInterval(ping);
-			wsRef.current?.close();
+			if (reconnectTimeoutRef.current) {
+				clearTimeout(reconnectTimeoutRef.current);
+			}
+			if (wsRef.current) {
+				wsRef.current.close();
+			}
 		};
-	}, [onMessage]);
+	}, []);
+
+	return { isConnected, lastMessage };
 }
