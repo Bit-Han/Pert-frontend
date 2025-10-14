@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createWebSocket } from "../config";
-
+import type { UpdateMessage } from "../../app/page"
 export function useWebSocket() {
 	const [isConnected, setIsConnected] = useState(false);
-	const [lastMessage, setLastMessage] = useState<unknown>(null);
+	const [lastMessage, setLastMessage] = useState<UpdateMessage | null>(null);
 	const wsRef = useRef<WebSocket | null>(null);
 	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -17,12 +17,12 @@ export function useWebSocket() {
 
 			ws.onopen = () => {
 				setIsConnected(true);
-				console.log("[v0] WebSocket connected successfully");
+				console.log("WebSocket connected successfully");
 			};
 
 			ws.onclose = () => {
 				setIsConnected(false);
-				console.log("[v0] WebSocket disconnected, attempting to reconnect...");
+				console.log("WebSocket disconnected, attempting to reconnect...");
 
 				// Attempt to reconnect after 5 seconds
 				reconnectTimeoutRef.current = setTimeout(() => {
@@ -31,13 +31,13 @@ export function useWebSocket() {
 			};
 
 			ws.onerror = (error) => {
-				console.error("[v0] WebSocket error:", error);
+				console.error("WebSocket error:", error);
 				setIsConnected(false);
 			};
 
 			wsRef.current = ws;
 		} catch (error) {
-			console.error("[v0] Failed to create WebSocket:", error);
+			console.error("Failed to create WebSocket:", error);
 			setIsConnected(false);
 		}
 	};
