@@ -18,7 +18,7 @@ import { toast } from "sonner";
 
 
 
-type PertUpdate = {
+type PertUpdate = {	
 	message: string;
 	type: string;
 	project_duration: number;

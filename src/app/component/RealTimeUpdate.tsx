@@ -19,8 +19,17 @@ import {
 	Clock,
 } from "lucide-react";
 
+
+type Update = {
+	data: object;
+	details(details: string, arg1: null, arg2: number): import("react").ReactNode;
+	message: string;
+	type: string;
+	timestamp: string | number;
+};
+
 interface RealtimeUpdatesProps {
-	updates: any[];
+	updates: Update[];
 	isConnected: boolean;
 	onClearUpdates: () => void;
 }
