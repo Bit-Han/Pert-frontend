@@ -1,5 +1,5 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL 
-
+import type { UpdateMessage } from "./page";
 export interface Task {
 	id: string;
 	optimistic: number;
@@ -121,24 +121,18 @@ export async function comparePert(tasks: Task[]): Promise<ComparisonResult> {
 	return normalized;
 }
 
-export function createWebSocket(onMessage: (data: unknown) => void): WebSocket {
-	const ws = new WebSocket("ws://127.0.0.1:8000/ws/updates");
-
-	ws.onopen = () => {
-		console.log("[v0] WebSocket connected");
-	};
+export function createWebSocket(
+	onMessage: (data: UpdateMessage) => void
+): WebSocket {
+	const ws = new WebSocket(`${API_BASE_URL}ws/updates`);
 
 	ws.onmessage = (event) => {
-		const data = JSON.parse(event.data);
-		onMessage(data);
-	};
-
-	ws.onerror = (error) => {
-		console.error("[v0] WebSocket error:", error);
-	};
-
-	ws.onclose = () => {
-		console.log("[v0] WebSocket disconnected");
+		try {
+			const parsed = JSON.parse(event.data) as UpdateMessage;
+			onMessage(parsed);
+		} catch {
+			onMessage(event.data as string);
+		}
 	};
 
 	return ws;

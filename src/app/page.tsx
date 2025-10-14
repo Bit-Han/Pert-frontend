@@ -3,20 +3,51 @@
 import { useState, useEffect } from "react";
 import { TaskManager } from "@pages/app/component/TaskManger";
 import { PertResults } from "@pages/app/component/ResultsPanel";
-import  {ComparisonView}  from "@pages/app/component/ComparisonView";
+import { ComparisonView } from "@pages/app/component/ComparisonView";
 import { WebSocketStatus } from "@pages/app/component/WebSocketStatus";
 import { RealtimeUpdates } from "@pages/app/component/RealTimeUpdate";
 import { useWebSocket } from "@pages/app/hooks/useWebSocket";
 import type { Task, PertResult, ComparisonResult } from "./config";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@pages/components/ui/tabs";
+import {
+	Tabs,
+	TabsContent,
+	TabsList,
+	TabsTrigger,
+} from "@pages/components/ui/tabs";
 import { toast } from "sonner";
+
+
+
+type PertUpdate = {
+	message: string;
+	type: string;
+	project_duration: number;
+	task_timings: {
+		id: string;
+		duration: number;
+		ES: number;
+		EF: number;
+		LS: number;
+		LF: number;
+		slack: number;
+	}[];
+	critical_paths: string[][];
+	monte_carlo?: {
+		mean: number;
+		p50: number;
+		p80: number;
+		p95: number;
+	};
+};
+
+export type UpdateMessage = PertUpdate;
 
 export default function PertDashboard() {
 	const [tasks, setTasks] = useState<Task[]>([]);
 	const [pertResult, setPertResult] = useState<PertResult | null>(null);
 	const [comparisonResult, setComparisonResult] =
 		useState<ComparisonResult | null>(null);
-	const [updates, setUpdates] = useState<any[]>([]);
+	const [updates, setUpdates] = useState<UpdateMessage[]>([]);
 	const { isConnected, lastMessage } = useWebSocket();
 
 	useEffect(() => {
