@@ -19,6 +19,9 @@ import { toast } from "sonner";
 
 
 type PertUpdate = {
+	data: object;
+	details(details: string, arg1: null, arg2: number): import("react").ReactNode;
+	timestamp: string | number;
 	message: string;
 	type: string;
 	project_duration: number;
