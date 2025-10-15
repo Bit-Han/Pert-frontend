@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || `https://pert-backend-1.onrender.com/`
+const API_BASE_URL =
+	process.env.NEXT_PUBLIC_API_BASE_URL ||
+	`https://pert-backend-1.onrender.com/`;
 export interface Task {
 	id: string;
 	optimistic: number;
@@ -32,7 +34,6 @@ export interface PertResult {
 	monte_carlo: MonteCarloResult;
 }
 
-
 export interface UpdateMessage {
 	type: "calculation_complete" | "task_updated" | "error";
 	message: string;
@@ -40,7 +41,6 @@ export interface UpdateMessage {
 	details: string;
 	data: PertResult;
 }
-
 
 export interface ComparisonResult {
 	classical: {
@@ -55,14 +55,14 @@ export interface ComparisonResult {
 			90: number;
 		};
 	};
-		comparison?: {
+	comparison?: {
 		difference: number;
 		percentage_diff: number;
 	};
 }
 
 export async function setTasks(tasks: Task[]): Promise<{ message: string }> {
-	const response = await fetch(`${API_BASE_URL}/set-tasks`, {
+	const response = await fetch(`${API_BASE_URL}set-tasks`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(tasks),
@@ -72,7 +72,7 @@ export async function setTasks(tasks: Task[]): Promise<{ message: string }> {
 }
 
 export async function runPertAnalysis(tasks: Task[]): Promise<PertResult> {
-	const response = await fetch(`${API_BASE_URL}/pert`, {
+	const response = await fetch(`${API_BASE_URL}pert`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(tasks),
@@ -82,7 +82,7 @@ export async function runPertAnalysis(tasks: Task[]): Promise<PertResult> {
 }
 
 export async function updateTask(task: Task): Promise<{ message: string }> {
-	const response = await fetch(`${API_BASE_URL}/update-task`, {
+	const response = await fetch(`${API_BASE_URL}update-task`, {
 		method: "PUT",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(task),
@@ -92,7 +92,7 @@ export async function updateTask(task: Task): Promise<{ message: string }> {
 }
 
 export async function comparePert(tasks: Task[]): Promise<ComparisonResult> {
-	const response = await fetch(`${API_BASE_URL}/compare-pert`, {
+	const response = await fetch(`${API_BASE_URL}compare-pert`, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
 		body: JSON.stringify(tasks),
@@ -129,8 +129,6 @@ export async function comparePert(tasks: Task[]): Promise<ComparisonResult> {
 
 	return normalized;
 }
-
-
 
 export function createWebSocket(
 	onMessage: (data: PertResult) => void
