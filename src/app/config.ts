@@ -1,5 +1,4 @@
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL 
-import type { UpdateMessage } from "./page";
 export interface Task {
 	id: string;
 	optimistic: number;
@@ -32,6 +31,16 @@ export interface PertResult {
 	critical_paths: string[][];
 	monte_carlo: MonteCarloResult;
 }
+
+
+export interface UpdateMessage {
+	type: "calculation_complete" | "task_updated" | "error";
+	message: string;
+	timestamp: string;
+	details: string;
+	data: PertResult;
+}
+
 
 export interface ComparisonResult {
 	classical: {
@@ -121,19 +130,39 @@ export async function comparePert(tasks: Task[]): Promise<ComparisonResult> {
 	return normalized;
 }
 
+
+
 export function createWebSocket(
-	onMessage: (data: UpdateMessage) => void
+	onMessage: (data: PertResult) => void
 ): WebSocket {
 	const ws = new WebSocket(`${API_BASE_URL}ws/updates`);
 
 	ws.onmessage = (event) => {
 		try {
-			const parsed = JSON.parse(event.data) as UpdateMessage;
+			const parsed = JSON.parse(event.data) as PertResult;
 			onMessage(parsed);
-		} catch {
-			onMessage(event.data as string);
+		} catch (err) {
+			console.error("WebSocket parse error:", err);
 		}
 	};
 
 	return ws;
 }
+
+// export function createWebSocket(
+// 	onMessage: (data: UpdateMessage) => void
+// ): WebSocket {
+// 	const wsUrl = `${API_BASE_URL}/ws/updates`;
+// 	const ws = new WebSocket(wsUrl);
+
+// 	ws.onmessage = (event) => {
+// 		try {
+// 			const parsed = JSON.parse(event.data) as UpdateMessage;
+// 			onMessage(parsed);
+// 		} catch (err) {
+// 			console.error("Failed to parse WebSocket message:", err, event.data);
+// 		}
+// 	};
+
+// 	return ws;
+// }

@@ -15,35 +15,9 @@ import {
 	TabsTrigger,
 } from "@pages/components/ui/tabs";
 import { toast } from "sonner";
+import { UpdateMessage } from "./config";
 
 
-
-type PertUpdate = {
-	data: object;
-	details(details: string, arg1: null, arg2: number): import("react").ReactNode;
-	timestamp: string | number;
-	message: string;
-	type: string;
-	project_duration: number;
-	task_timings: {
-		id: string;
-		duration: number;
-		ES: number;
-		EF: number;
-		LS: number;
-		LF: number;
-		slack: number;
-	}[];
-	critical_paths: string[][];
-	monte_carlo?: {
-		mean: number;
-		p50: number;
-		p80: number;
-		p95: number;
-	};
-};
-
-export type UpdateMessage = PertUpdate;
 
 export default function PertDashboard() {
 	const [tasks, setTasks] = useState<Task[]>([]);
@@ -53,18 +27,21 @@ export default function PertDashboard() {
 	const [updates, setUpdates] = useState<UpdateMessage[]>([]);
 	const { isConnected, lastMessage } = useWebSocket();
 
+	
 	useEffect(() => {
-		if (lastMessage) {
-			// setUpdates((prev) => [lastMessage, ...prev].slice(0, 50));
+		if (!lastMessage) return;
 
-			if (lastMessage.type === "calculation_complete") {
-				toast.success(lastMessage.message || "PERT analysis has been updated");
-			} else if (lastMessage.type === "task_updated") {
-				toast.info(lastMessage.message || "A task has been modified");
-			} else if (lastMessage.type === "error") {
-				toast.error(lastMessage.message || "An error occurred");
-			}
-		}
+		// Wrap incoming PertResult into a frontend-friendly message object
+		const wrapped: UpdateMessage = {
+			type: "calculation_complete",
+			message: "PERT analysis updated successfully",
+			details: "PertResult",
+			timestamp: new Date().toISOString(),
+			data: lastMessage,
+		};
+
+		setUpdates((prev) => [wrapped, ...prev].slice(0, 50));
+		toast.success(wrapped.message);
 	}, [lastMessage]);
 
 	return (

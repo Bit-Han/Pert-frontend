@@ -19,7 +19,7 @@ import {
 	Clock,
 } from "lucide-react";
 
-import type { UpdateMessage } from "../page";
+import { UpdateMessage } from "../config";
 
 
 interface RealtimeUpdatesProps {

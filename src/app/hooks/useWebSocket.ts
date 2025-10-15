@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createWebSocket } from "../config";
-import type { UpdateMessage } from "../../app/page"
+import type { PertResult } from "../config";
+
 export function useWebSocket() {
 	const [isConnected, setIsConnected] = useState(false);
-	const [lastMessage, setLastMessage] = useState<UpdateMessage | null>(null);
+	const [lastMessage, setLastMessage] = useState<PertResult | null>(null);
 	const wsRef = useRef<WebSocket | null>(null);
 	const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
