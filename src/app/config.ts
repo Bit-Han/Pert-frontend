@@ -1,6 +1,5 @@
 const API_BASE_URL =
-	process.env.NEXT_PUBLIC_API_BASE_URL ||
-	"https://pert-backend-1.onrender.com/";
+	process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, "");
 export interface Task {
 	id: string;
 	optimistic: number;
